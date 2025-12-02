@@ -49,7 +49,7 @@ export function getItemLabel(value: string) {
 
 // Popular NYSC camps
 export const NYSC_CAMPS = [
-  { value: "", label: "Any Camp (Global Match)" },
+  { value: "any", label: "Any Camp (Global Match)" },
   { value: "abia", label: "Abia - Umunna" },
   { value: "adamawa", label: "Adamawa - Damare" },
   { value: "akwa_ibom", label: "Akwa Ibom - Ikot Itie Udung" },

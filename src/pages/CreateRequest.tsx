@@ -87,7 +87,7 @@ const CreateRequest = () => {
           item_type: formData.itemType,
           have_size: formData.haveSize,
           want_size: formData.wantSize,
-          camp: formData.camp || null,
+          camp: formData.camp === "any" ? null : formData.camp || null,
           secret_code: formData.secretCode,
         })
         .select("id")
