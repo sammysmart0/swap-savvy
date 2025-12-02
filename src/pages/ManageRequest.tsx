@@ -56,7 +56,8 @@ const ManageRequest = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   // Request state
-  const [request, setRequest] = useState<SwapRequest | null>(null);
+  const [requests, setRequests] = useState<SwapRequest[]>([]);
+  const [selectedRequest, setSelectedRequest] = useState<SwapRequest | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<Partial<SwapRequest>>({});
   
@@ -84,22 +85,22 @@ const ManageRequest = () => {
         .select("*")
         .eq("phone", phone.trim())
         .eq("secret_code", secretCode)
-        .maybeSingle();
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
 
-      if (!data) {
+      if (!data || data.length === 0) {
         toast({ 
-          title: "Request not found", 
-          description: "No request matches this phone number and secret code",
+          title: "No requests found", 
+          description: "No requests match this phone number and secret code",
           variant: "destructive" 
         });
         return;
       }
 
-      setRequest(data);
+      setRequests(data);
       setIsAuthenticated(true);
-      toast({ title: "Request found!" });
+      toast({ title: `Found ${data.length} request${data.length > 1 ? "s" : ""}!` });
     } catch (error: any) {
       toast({
         title: "Error looking up request",
@@ -111,20 +112,31 @@ const ManageRequest = () => {
     }
   };
 
+  const handleSelectRequest = (request: SwapRequest) => {
+    setSelectedRequest(request);
+    setMatches([]);
+  };
+
+  const handleBackToList = () => {
+    setSelectedRequest(null);
+    setMatches([]);
+    setIsEditing(false);
+  };
+
   const handleEdit = () => {
-    if (!request) return;
+    if (!selectedRequest) return;
     setEditData({
-      name: request.name,
-      item_type: request.item_type,
-      have_size: request.have_size,
-      want_size: request.want_size,
-      camp: request.camp,
+      name: selectedRequest.name,
+      item_type: selectedRequest.item_type,
+      have_size: selectedRequest.have_size,
+      want_size: selectedRequest.want_size,
+      camp: selectedRequest.camp,
     });
     setIsEditing(true);
   };
 
   const handleSaveEdit = async () => {
-    if (!request || !editData.name || !editData.item_type || !editData.have_size || !editData.want_size) {
+    if (!selectedRequest || !editData.name || !editData.item_type || !editData.have_size || !editData.want_size) {
       toast({ title: "Please fill in all required fields", variant: "destructive" });
       return;
     }
@@ -139,22 +151,24 @@ const ManageRequest = () => {
           item_type: editData.item_type,
           have_size: editData.have_size,
           want_size: editData.want_size,
-          camp: editData.camp || null,
+          camp: editData.camp === "any" ? null : editData.camp || null,
         })
-        .eq("id", request.id);
+        .eq("id", selectedRequest.id);
 
       if (error) throw error;
 
-      setRequest({
-        ...request,
+      const updatedRequest = {
+        ...selectedRequest,
         name: editData.name!,
         item_type: editData.item_type!,
         have_size: editData.have_size!,
         want_size: editData.want_size!,
-        camp: editData.camp || null,
-      });
+        camp: editData.camp === "any" ? null : editData.camp || null,
+      };
+      setSelectedRequest(updatedRequest);
+      setRequests(requests.map(r => r.id === updatedRequest.id ? updatedRequest : r));
       setIsEditing(false);
-      setMatches([]); // Clear matches since request changed
+      setMatches([]);
       toast({ title: "Request updated successfully!" });
     } catch (error: any) {
       toast({
@@ -168,7 +182,7 @@ const ManageRequest = () => {
   };
 
   const handleDelete = async () => {
-    if (!request) return;
+    if (!selectedRequest) return;
 
     setIsLoading(true);
 
@@ -176,16 +190,22 @@ const ManageRequest = () => {
       const { error } = await supabase
         .from("swap_requests")
         .delete()
-        .eq("id", request.id);
+        .eq("id", selectedRequest.id);
 
       if (error) throw error;
 
-      setRequest(null);
-      setIsAuthenticated(false);
-      setPhone("");
-      setSecretCode("");
+      const remainingRequests = requests.filter(r => r.id !== selectedRequest.id);
+      setRequests(remainingRequests);
+      setSelectedRequest(null);
       setMatches([]);
       setShowDeleteDialog(false);
+      
+      if (remainingRequests.length === 0) {
+        setIsAuthenticated(false);
+        setPhone("");
+        setSecretCode("");
+      }
+      
       toast({ title: "Request deleted successfully!" });
     } catch (error: any) {
       toast({
@@ -199,7 +219,7 @@ const ManageRequest = () => {
   };
 
   const handleFindMatches = async () => {
-    if (!request) return;
+    if (!selectedRequest) return;
 
     setIsLoadingMatches(true);
 
@@ -214,10 +234,10 @@ const ManageRequest = () => {
       let query = supabase
         .from("swap_requests")
         .select("id, name, phone, have_size, want_size, camp")
-        .eq("item_type", request.item_type)
-        .eq("have_size", request.want_size)
-        .eq("want_size", request.have_size)
-        .neq("id", request.id);
+        .eq("item_type", selectedRequest.item_type)
+        .eq("have_size", selectedRequest.want_size)
+        .eq("want_size", selectedRequest.have_size)
+        .neq("id", selectedRequest.id);
 
       const { data, error } = await query;
 
@@ -226,8 +246,8 @@ const ManageRequest = () => {
       // Filter by camp rule
       const filteredMatches = (data || []).filter((match) => {
         // If current user has a camp and match has a camp, they must be the same
-        if (request.camp && match.camp) {
-          return request.camp === match.camp;
+        if (selectedRequest.camp && match.camp) {
+          return selectedRequest.camp === match.camp;
         }
         // Otherwise, match is allowed
         return true;
@@ -259,7 +279,8 @@ const ManageRequest = () => {
 
   const handleLogout = () => {
     setIsAuthenticated(false);
-    setRequest(null);
+    setRequests([]);
+    setSelectedRequest(null);
     setPhone("");
     setSecretCode("");
     setMatches([]);
@@ -290,9 +311,9 @@ const ManageRequest = () => {
             /* Login Form */
             <Card variant="elevated" className="animate-slide-up">
               <CardHeader>
-                <CardTitle>Access Your Request</CardTitle>
+                <CardTitle>Access Your Requests</CardTitle>
                 <CardDescription>
-                  Enter the phone number and secret code you used when creating your request
+                  Enter the phone number and secret code you used when creating your requests
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -339,22 +360,22 @@ const ManageRequest = () => {
                     ) : (
                       <>
                         <Search className="mr-2 h-4 w-4" />
-                        Find My Request
+                        Find My Requests
                       </>
                     )}
                   </Button>
                 </form>
               </CardContent>
             </Card>
-          ) : request && !isEditing ? (
-            /* Request Details View */
+          ) : isAuthenticated && !selectedRequest ? (
+            /* Requests List */
             <div className="space-y-6 animate-slide-up">
               <Card variant="elevated">
                 <CardHeader className="flex flex-row items-start justify-between">
                   <div>
-                    <CardTitle>Your Swap Request</CardTitle>
+                    <CardTitle>Your Swap Requests ({requests.length})</CardTitle>
                     <CardDescription>
-                      Created on {new Date(request.created_at).toLocaleDateString()}
+                      Select a request to view details, edit, delete, or find matches
                     </CardDescription>
                   </div>
                   <Button variant="ghost" size="sm" onClick={handleLogout}>
@@ -362,34 +383,83 @@ const ManageRequest = () => {
                     Logout
                   </Button>
                 </CardHeader>
+                <CardContent className="space-y-3">
+                  {requests.map((req) => (
+                    <Card 
+                      key={req.id} 
+                      variant="interactive" 
+                      className="cursor-pointer hover:border-primary/50 transition-colors"
+                      onClick={() => handleSelectRequest(req)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-1">
+                            <div className="font-semibold text-foreground">
+                              {getItemLabel(req.item_type)}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {getCampLabel(req.camp || "")}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-lg">
+                            <span className="text-sm font-medium text-destructive">{req.have_size}</span>
+                            <span className="text-muted-foreground">→</span>
+                            <span className="text-sm font-medium text-success">{req.want_size}</span>
+                          </div>
+                        </div>
+                        <div className="mt-2 text-xs text-muted-foreground">
+                          Created {new Date(req.created_at).toLocaleDateString()}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
+          ) : selectedRequest && !isEditing ? (
+            /* Request Details View */
+            <div className="space-y-6 animate-slide-up">
+              <Card variant="elevated">
+                <CardHeader className="flex flex-row items-start justify-between">
+                  <div>
+                    <CardTitle>Swap Request Details</CardTitle>
+                    <CardDescription>
+                      Created on {new Date(selectedRequest.created_at).toLocaleDateString()}
+                    </CardDescription>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={requests.length > 1 ? handleBackToList : handleLogout}>
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    {requests.length > 1 ? "Back to List" : "Logout"}
+                  </Button>
+                </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <div className="text-sm text-muted-foreground">Name</div>
-                      <div className="font-medium">{request.name}</div>
+                      <div className="font-medium">{selectedRequest.name}</div>
                     </div>
                     <div>
                       <div className="text-sm text-muted-foreground">Phone</div>
-                      <div className="font-medium">{request.phone}</div>
+                      <div className="font-medium">{selectedRequest.phone}</div>
                     </div>
                     <div>
                       <div className="text-sm text-muted-foreground">Item</div>
-                      <div className="font-medium">{getItemLabel(request.item_type)}</div>
+                      <div className="font-medium">{getItemLabel(selectedRequest.item_type)}</div>
                     </div>
                     <div>
                       <div className="text-sm text-muted-foreground">Camp</div>
-                      <div className="font-medium">{getCampLabel(request.camp || "")}</div>
+                      <div className="font-medium">{getCampLabel(selectedRequest.camp || "")}</div>
                     </div>
                     <div className="col-span-2">
                       <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg">
                         <div className="flex-1 text-center">
                           <div className="text-xs text-muted-foreground mb-1">I HAVE</div>
-                          <div className="text-lg font-bold text-destructive">{request.have_size}</div>
+                          <div className="text-lg font-bold text-destructive">{selectedRequest.have_size}</div>
                         </div>
                         <div className="text-2xl text-muted-foreground">→</div>
                         <div className="flex-1 text-center">
                           <div className="text-xs text-muted-foreground mb-1">I WANT</div>
-                          <div className="text-lg font-bold text-success">{request.want_size}</div>
+                          <div className="text-lg font-bold text-success">{selectedRequest.want_size}</div>
                         </div>
                       </div>
                     </div>
@@ -483,7 +553,7 @@ const ManageRequest = () => {
                 </div>
               )}
             </div>
-          ) : request && isEditing ? (
+          ) : selectedRequest && isEditing ? (
             /* Edit Form */
             <Card variant="elevated" className="animate-slide-up">
               <CardHeader>
