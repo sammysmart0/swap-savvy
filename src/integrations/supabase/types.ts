@@ -24,6 +24,8 @@ export type Database = {
           name: string
           phone: string
           secret_code: string
+          security_answer: string | null
+          security_question: string | null
           want_size: string
         }
         Insert: {
@@ -35,6 +37,8 @@ export type Database = {
           name: string
           phone: string
           secret_code: string
+          security_answer?: string | null
+          security_question?: string | null
           want_size: string
         }
         Update: {
@@ -46,6 +50,8 @@ export type Database = {
           name?: string
           phone?: string
           secret_code?: string
+          security_answer?: string | null
+          security_question?: string | null
           want_size?: string
         }
         Relationships: []

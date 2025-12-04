@@ -9,8 +9,18 @@ export const ITEM_TYPES = [
   { value: "white_shirt", label: "White Shirt" },
   { value: "belt", label: "Belt" },
   { value: "socks", label: "Socks" },
-  { value: "cap_cva", label: "Cap (CVA)" },
-  { value: "jungle_hat", label: "Jungle Hat" },
+  { value: "face_cap", label: "Face Cap" },
+] as const;
+
+export const SECURITY_QUESTIONS = [
+  { value: "mother_maiden", label: "What is your mother's maiden name?" },
+  { value: "first_pet", label: "What was the name of your first pet?" },
+  { value: "birth_city", label: "In which city were you born?" },
+  { value: "childhood_friend", label: "What is the name of your childhood best friend?" },
+  { value: "primary_school", label: "What is the name of your primary school?" },
+  { value: "favorite_teacher", label: "What is the name of your favorite teacher?" },
+  { value: "favorite_food", label: "What is your favorite food?" },
+  { value: "nickname", label: "What was your childhood nickname?" },
 ] as const;
 
 export const CLOTHING_SIZES = [
