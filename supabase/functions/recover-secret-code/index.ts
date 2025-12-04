@@ -67,10 +67,10 @@ const handler = async (req: Request): Promise<Response> => {
       },
       body: JSON.stringify({
         to: phone,
-        from: "SwapSavvy",
+        from: "N-Alert",
         sms: `Hi ${userName}! Your SwapSavvy secret code is: ${secretCode}`,
         type: "plain",
-        channel: "generic",
+        channel: "dnd",
         api_key: termiiApiKey,
       }),
     });
