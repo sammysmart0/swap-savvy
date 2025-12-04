@@ -9,9 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ITEM_TYPES, NYSC_CAMPS, getSizesForItem, getItemLabel, getCampLabel } from "@/lib/constants";
+import { ForgotSecretCodeDialog } from "@/components/ForgotSecretCodeDialog";
 import { 
   Loader2, Search, Edit3, Trash2, Users, Phone, 
-  Eye, EyeOff, ArrowLeft, CheckCircle2, AlertCircle 
+  Eye, EyeOff, ArrowLeft, CheckCircle2, AlertCircle, Copy
 } from "lucide-react";
 import {
   AlertDialog,
@@ -364,6 +365,10 @@ const ManageRequest = () => {
                       </>
                     )}
                   </Button>
+                  
+                  <div className="text-center">
+                    <ForgotSecretCodeDialog />
+                  </div>
                 </form>
               </CardContent>
             </Card>
@@ -517,7 +522,17 @@ const ManageRequest = () => {
                   <h3 className="font-display font-bold text-xl text-foreground">
                     Matches Found ({matches.length})
                   </h3>
-                  {matches.map((match) => (
+                {matches.map((match) => {
+                  const handleCopyPhone = async () => {
+                    try {
+                      await navigator.clipboard.writeText(match.phone);
+                      toast({ title: "Copied!", description: "Phone number copied to clipboard" });
+                    } catch (err) {
+                      toast({ title: "Failed to copy", variant: "destructive" });
+                    }
+                  };
+                  
+                  return (
                     <Card key={match.id} variant="interactive">
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between">
@@ -525,7 +540,14 @@ const ManageRequest = () => {
                             <div className="font-semibold text-foreground">{match.name}</div>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <Phone className="h-3 w-3" />
-                              {match.phone}
+                              <span>{match.phone}</span>
+                              <button 
+                                onClick={handleCopyPhone}
+                                className="p-1 rounded hover:bg-muted transition-colors"
+                                title="Copy phone number"
+                              >
+                                <Copy className="h-3 w-3" />
+                              </button>
                             </div>
                             <div className="text-xs text-muted-foreground">
                               {match.camp ? getCampLabel(match.camp) : "Any Camp"}
@@ -548,8 +570,9 @@ const ManageRequest = () => {
                         </div>
                       </CardContent>
                     </Card>
-                  ))
-                  }
+                  );
+                })
+                }
                 </div>
               )}
             </div>

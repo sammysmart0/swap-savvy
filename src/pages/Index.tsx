@@ -3,6 +3,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { HeroCarousel } from "@/components/HeroCarousel";
 import { ArrowRight, Repeat, Search, Shield, Users, Zap, CheckCircle2 } from "lucide-react";
 
 const Index = () => {
@@ -65,13 +66,12 @@ const Index = () => {
       <Header />
       
       <main className="flex-1">
-        {/* Hero Section */}
+        {/* Hero Section with Carousel */}
         <section className="relative overflow-hidden">
-          <div className="absolute inset-0 pattern-dots opacity-50" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl" />
-          
-          <div className="container relative py-20 md:py-32">
-            <div className="mx-auto max-w-3xl text-center animate-slide-up">
+          <div className="container py-8 md:py-12">
+            <HeroCarousel />
+            
+            <div className="relative mt-8 md:mt-12 mx-auto max-w-3xl text-center animate-slide-up">
               <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary mb-6">
                 <Users className="h-4 w-4" />
                 <span>For NYSC Corps Members</span>

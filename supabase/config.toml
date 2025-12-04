@@ -1,1 +1,4 @@
 project_id = "efecvzqgszkuktyxzclf"
+
+[functions.recover-secret-code]
+verify_jwt = false
