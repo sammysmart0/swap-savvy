@@ -79,6 +79,28 @@ const CreateRequest = () => {
     setIsLoading(true);
 
     try {
+      // Check if phone number already exists
+      const { data: existingRequest, error: lookupError } = await supabase
+        .from("swap_requests")
+        .select("secret_code")
+        .eq("phone", formData.phone.trim())
+        .maybeSingle();
+
+      if (lookupError) throw lookupError;
+
+      // If phone exists, verify secret code matches
+      if (existingRequest) {
+        if (existingRequest.secret_code !== formData.secretCode) {
+          toast({
+            title: "Phone number already registered",
+            description: "Please enter the correct secret code associated with this phone number.",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+      }
+
       const { data, error } = await supabase
         .from("swap_requests")
         .insert({
