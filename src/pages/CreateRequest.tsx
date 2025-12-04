@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ITEM_TYPES, NYSC_CAMPS, getSizesForItem, getItemLabel, getCampLabel } from "@/lib/constants";
+import { ITEM_TYPES, NYSC_CAMPS, SECURITY_QUESTIONS, getSizesForItem, getItemLabel, getCampLabel } from "@/lib/constants";
 import { Loader2, CheckCircle2, Copy, ArrowLeft, Eye, EyeOff } from "lucide-react";
 
 const CreateRequest = () => {
@@ -27,6 +27,8 @@ const CreateRequest = () => {
     wantSize: "",
     camp: "",
     secretCode: "",
+    securityQuestion: "",
+    securityAnswer: "",
   });
 
   const sizeOptions = formData.itemType ? getSizesForItem(formData.itemType) : [];
@@ -75,6 +77,14 @@ const CreateRequest = () => {
       toast({ title: "Secret code must be at least 4 characters", variant: "destructive" });
       return;
     }
+    if (!formData.securityQuestion) {
+      toast({ title: "Please select a security question", variant: "destructive" });
+      return;
+    }
+    if (!formData.securityAnswer.trim()) {
+      toast({ title: "Please provide an answer to your security question", variant: "destructive" });
+      return;
+    }
 
     setIsLoading(true);
 
@@ -111,6 +121,8 @@ const CreateRequest = () => {
           want_size: formData.wantSize,
           camp: formData.camp === "any" ? null : formData.camp || null,
           secret_code: formData.secretCode,
+          security_question: formData.securityQuestion,
+          security_answer: formData.securityAnswer.trim().toLowerCase(),
         })
         .select("id")
         .single();
@@ -349,6 +361,43 @@ const CreateRequest = () => {
                     You'll need this to edit or delete your request later
                   </p>
                 </div>
+
+                {/* Security Question */}
+                <div className="space-y-2">
+                  <Label>Security Question</Label>
+                  <Select value={formData.securityQuestion} onValueChange={(v) => handleChange("securityQuestion", v)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a security question" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SECURITY_QUESTIONS.map((question) => (
+                        <SelectItem key={question.value} value={question.value}>
+                          {question.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    This helps recover your secret code if forgotten
+                  </p>
+                </div>
+
+                {/* Security Answer */}
+                {formData.securityQuestion && (
+                  <div className="space-y-2">
+                    <Label htmlFor="securityAnswer">Security Answer</Label>
+                    <Input
+                      id="securityAnswer"
+                      placeholder="Enter your answer"
+                      value={formData.securityAnswer}
+                      onChange={(e) => handleChange("securityAnswer", e.target.value)}
+                      required
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Remember this answer - it's case-insensitive
+                    </p>
+                  </div>
+                )}
 
                 <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
                   {isLoading ? (

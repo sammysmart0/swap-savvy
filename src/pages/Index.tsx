@@ -57,8 +57,7 @@ const Index = () => {
     "White Shirt",
     "Belt",
     "Socks",
-    "Cap (CVA)",
-    "Jungle Hat",
+    "Face Cap",
   ];
 
   return (
@@ -66,23 +65,27 @@ const Index = () => {
       <Header />
       
       <main className="flex-1">
-        {/* Hero Section with Carousel */}
-        <section className="relative overflow-hidden">
-          <div className="container py-8 md:py-12">
+        {/* Hero Section with Carousel Background */}
+        <section className="relative overflow-hidden min-h-[600px] md:min-h-[700px]">
+          {/* Carousel as Background */}
+          <div className="absolute inset-0 z-0">
             <HeroCarousel />
-            
-            <div className="relative mt-8 md:mt-12 mx-auto max-w-3xl text-center animate-slide-up">
-              <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary mb-6">
+          </div>
+          
+          {/* Content Overlay */}
+          <div className="relative z-10 container py-16 md:py-24">
+            <div className="mx-auto max-w-3xl text-center animate-slide-up">
+              <div className="inline-flex items-center gap-2 rounded-full bg-background/80 backdrop-blur-sm px-4 py-2 text-sm font-medium text-primary mb-6">
                 <Users className="h-4 w-4" />
                 <span>For NYSC Corps Members</span>
               </div>
               
-              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground mb-6 leading-tight">
+              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground mb-6 leading-tight drop-shadow-lg">
                 Swap Your Camp Items{" "}
                 <span className="text-primary">Effortlessly</span>
               </h1>
               
-              <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+              <p className="text-lg md:text-xl text-foreground/90 mb-8 max-w-2xl mx-auto bg-background/60 backdrop-blur-sm rounded-lg p-4">
                 Got ill-fitting khaki, boots, or uniforms? Find other corps members to swap with instantly. 
                 No registration required.
               </p>
@@ -94,7 +97,7 @@ const Index = () => {
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
-                <Button asChild size="xl" variant="outline">
+                <Button asChild size="xl" variant="outline" className="bg-background/80 backdrop-blur-sm">
                   <Link to="/manage">
                     Manage My Request
                   </Link>

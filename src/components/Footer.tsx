@@ -1,4 +1,4 @@
-import { Repeat, Heart } from "lucide-react";
+import nyscLogo from "@/assets/nysc-logo.png";
 
 export function Footer() {
   return (
@@ -6,9 +6,7 @@ export function Footer() {
       <div className="container py-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Repeat className="h-4 w-4" />
-            </div>
+            <img src={nyscLogo} alt="NYSC Logo" className="h-8 w-8 object-contain" />
             <span className="font-display font-semibold text-foreground">NYSC Swap</span>
           </div>
           
@@ -16,8 +14,8 @@ export function Footer() {
             Helping corps members exchange items with ease.
           </p>
           
-          <p className="flex items-center gap-1 text-sm text-muted-foreground">
-            Made with <Heart className="h-3 w-3 text-destructive fill-destructive" /> for NYSC
+          <p className="text-sm text-muted-foreground">
+            Developed by Platoon 5 Kwara Camp 2025 Batch C
           </p>
         </div>
       </div>

@@ -1,7 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
-import { Repeat, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import nyscLogo from "@/assets/nysc-logo.png";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -17,9 +18,7 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2 group">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-transform group-hover:scale-105">
-            <Repeat className="h-5 w-5" />
-          </div>
+          <img src={nyscLogo} alt="NYSC Logo" className="h-10 w-10 object-contain" />
           <div className="flex flex-col">
             <span className="font-display text-lg font-bold leading-tight text-foreground">
               NYSC Swap
