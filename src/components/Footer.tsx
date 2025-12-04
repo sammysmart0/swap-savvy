@@ -10,10 +10,6 @@ export function Footer() {
             <span className="font-display font-semibold text-foreground">NYSC Swap</span>
           </div>
           
-          <p className="text-sm text-muted-foreground text-center">
-            Helping corps members exchange items with ease.
-          </p>
-          
           <p className="text-sm text-muted-foreground">
             Developed by Platoon 5 Kwara Camp 2025 Batch C
           </p>

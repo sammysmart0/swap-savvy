@@ -163,10 +163,10 @@ const Index = () => {
                   className="relative text-center animate-slide-up"
                   style={{ animationDelay: `${index * 150}ms` }}
                 >
-                  <div className="text-6xl md:text-7xl font-display font-extrabold text-primary/10 mb-2">
+                  <div className="text-6xl md:text-7xl font-display font-extrabold text-primary/10 mb-4">
                     {step.number}
                   </div>
-                  <h3 className="font-display font-bold text-xl text-foreground mb-2 -mt-6">
+                  <h3 className="font-display font-bold text-xl text-foreground mb-2">
                     {step.title}
                   </h3>
                   <p className="text-muted-foreground">
